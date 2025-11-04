@@ -16,15 +16,15 @@
 
   <style>
     body {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      background: linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%);
     }
     .game-card {
-      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
       transition: all 0.3s ease;
     }
     .game-card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     }
     .icon {
       transition: transform 0.3s ease;
@@ -35,18 +35,18 @@
   </style>
 </head>
 
-<body class="text-white min-h-screen flex items-center justify-center font-sans p-6">
+<body class="text-gray-900 min-h-screen flex items-center justify-center font-sans p-6">
 
   <main class="max-w-5xl w-full">
     <!-- Título -->
     <header class="text-center mb-16">
       <h1 class="text-4xl md:text-6xl font-bold mb-4">
-        <span class="bg-gradient-to-r from-cyan-400 to-purple-500 text-transparent bg-clip-text">
+        <span class="bg-gradient-to-r from-cyan-600 to-purple-600 text-transparent bg-clip-text">
           Energía en Acción
         </span>
       </h1>
-      <p class="text-gray-400 text-lg md:text-xl">
-        Proyectos Finales - Proyecto 4: Juego Educativo “Energía en Acción”
+      <p class="text-gray-600 text-lg md:text-xl">
+        Proyectos Finales - Proyecto 4: Juego Educativo "Energía en Acción"
       </p>
     </header>
 
@@ -55,7 +55,7 @@
 
       <!-- Juego 1 Empujar Cajas -->
       <a href="juego_plataformas.html"
-         class="game-card p-8 rounded-2xl border border-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+         class="game-card p-8 rounded-2xl border border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
          aria-label="Abrir juego Empujar Cajas">
         <div class="mb-6">
           <div class="w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center icon mb-4">
@@ -64,21 +64,21 @@
                 d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <h2 class="text-2xl font-semibold text-cyan-400 mb-2">Empujar Cajas</h2>
-          <p class="text-gray-300 leading-relaxed mb-4">
+          <h2 class="text-2xl font-semibold text-cyan-600 mb-2">Empujar Cajas</h2>
+          <p class="text-gray-700 leading-relaxed mb-4">
             Mueve objetos y calcula el trabajo realizado contra la fricción.
           </p>
         </div>
         <div class="flex flex-wrap gap-2">
-          <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-sm">Trabajo</span>
-          <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-sm">Fricción</span>
-          <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-sm">W = F·d</span>
+          <span class="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm">Trabajo</span>
+          <span class="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm">Fricción</span>
+          <span class="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm">W = F·d</span>
         </div>
       </a>
 
       <!-- Juego 2: Lanzar Proyectiles -->
       <a href="juego_lanzador.html"
-         class="game-card p-8 rounded-2xl border border-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+         class="game-card p-8 rounded-2xl border border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
          aria-label="Abrir juego Lanzar Proyectiles">
         <div class="mb-6">
           <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center icon mb-4">
@@ -87,15 +87,15 @@
                 d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h2 class="text-2xl font-semibold text-purple-400 mb-2">Lanzar Proyectiles</h2>
-          <p class="text-gray-300 leading-relaxed mb-4">
+          <h2 class="text-2xl font-semibold text-purple-600 mb-2">Lanzar Proyectiles</h2>
+          <p class="text-gray-700 leading-relaxed mb-4">
             Convierte energía elástica en cinética al lanzar proyectiles.
           </p>
         </div>
         <div class="flex flex-wrap gap-2">
-          <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">Ep = ½kx²</span>
-          <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">Ec = ½mv²</span>
-          <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm">Conservación</span>
+          <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">Ep = ½kx²</span>
+          <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">Ec = ½mv²</span>
+          <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">Conservación</span>
         </div>
       </a>
     </section>
