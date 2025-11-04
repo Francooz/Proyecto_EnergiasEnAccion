@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego: Empujar Cajas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background-color: #111827;
+            overflow: hidden;
+        }
+        canvas {
+            background: linear-gradient(to bottom, #374151, #4b5563);
+            border-radius: 8px;
+            display: block;
+            border: 4px solid #4b5563;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-content {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="text-white font-sans p-8 flex flex-col min-h-screen">
+
+    <header class="text-center mb-4">
+        <h1 class="text-3xl font-bold text-cyan-400">🎮 Juego 1: El Empujón de Cajas</h1>
+        <p class="text-gray-300 text-sm">Controles: ⬅️➡️ para mover, ⬆️ para saltar | Lleva la caja roja a la meta azul</p>
+    </header>
+
+    <main class="flex-1 flex flex-row gap-8 min-h-0">
+        <div class="flex-[3] flex flex-col">
+            
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg mb-4 flex justify-between items-center">
+                <div>
+                    <span class="font-semibold mr-4">Seleccionar Nivel:</span>
+                    <button id="level1-btn" class="bg-green-600 hover:bg-green-500 px-4 py-2 rounded-md transition">🟢 Fácil</button>
+                    <button id="level2-btn" class="bg-yellow-600 hover:bg-yellow-500 px-4 py-2 rounded-md transition ml-2">🟡 Medio</button>
+                    <button id="level3-btn" class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-md transition ml-2">🔴 Difícil</button>
+                </div>
+                <div class="flex gap-4">
+                    <span class="font-semibold text-xl">Nivel: <span id="stats-level" class="text-cyan-400">1</span>/3</span>
+                    <span class="font-semibold text-xl">⏱️ <span id="stats-time" class="text-yellow-400">0.0</span>s</span>
+                </div>
+            </div>
+
+            <div id="canvas-container" class="flex-1 flex justify-center items-center overflow-hidden"></div>
+        </div>
+
+        <div class="flex-[1] flex flex-col">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg h-full flex flex-col">
+                <h2 class="text-2xl font-bold text-center text-cyan-400 mb-6">📊 Panel de Física</h2>
+                <div class="flex flex-col gap-6">
+                    
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-green-400 mb-2">👤 Masa del Jugador</h3>
+                        <p class="text-3xl font-mono">
+                            <span id="stats-mass">5.00</span> kg
+                        </p>
+                        <p class="text-sm text-gray-400">Recoge bonos verdes (+masa)</p>
+                    </div>
+                    
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-yellow-400 mb-2">⚡ Trabajo Realizado (W)</h3>
+                        <p class="text-3xl font-mono">
+                            <span id="stats-work">0.00</span> J
+                        </p>
+                        <p class="text-sm text-gray-400">W = F<sub>fricción</sub> × distancia</p>
+                        <p class="text-xs text-gray-500 mt-1">F<sub>f</sub> = μ × m × g</p>
+                    </div>
+
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-red-400 mb-2">🔥 Energía Usada (E)</h3>
+                        <p class="text-3xl font-mono">
+                            <span id="stats-energy">0.00</span> J
+                        </p>
+                        <p class="text-sm text-gray-400">Eficiencia (η): <span id="stats-efficiency">25%</span></p>
+                        <p class="text-xs text-gray-500 mt-1">E = W / η</p>
+                    </div>
+
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-purple-400 mb-2">🏆 Tiempos</h3>
+                        <p class="text-sm text-gray-300">Nivel 1: <span id="time-level1" class="text-green-400">--</span></p>
+                        <p class="text-sm text-gray-300">Nivel 2: <span id="time-level2" class="text-yellow-400">--</span></p>
+                        <p class="text-sm text-gray-300">Nivel 3: <span id="time-level3" class="text-red-400">--</span></p>
+                        <p class="text-sm text-gray-300 font-bold mt-2">Total: <span id="time-total" class="text-cyan-400">--</span></p>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-6 text-center">
+                    <button id="reset-btn" class="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-md mb-2 w-full">🔄 Reiniciar Nivel</button>
+                    <a href="index.html" class="text-cyan-400 hover:text-cyan-300">&larr; Volver al Menú</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Nivel Completado -->
+    <div id="modal-win" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-8 rounded-lg text-center shadow-xl modal-content max-w-md">
+            <h2 class="text-4xl font-bold text-green-400 mb-4">🎉 ¡NIVEL COMPLETADO!</h2>
+            <div class="bg-gray-700 p-4 rounded-lg mb-4">
+                <p class="text-2xl mb-2">⏱️ Tiempo: <span id="modal-time" class="text-yellow-400 font-bold">0.0s</span></p>
+                <p class="text-lg">⚡ Trabajo: <span id="modal-work" class="text-cyan-400">0 J</span></p>
+                <p class="text-lg">🔥 Energía: <span id="modal-energy" class="text-red-400">0 J</span></p>
+            </div>
+            <button id="next-level-btn" class="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-md text-lg w-full">
+                Siguiente Nivel →
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Final -->
+    <div id="modal-final" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-8 rounded-lg text-center shadow-xl modal-content max-w-lg">
+            <h2 class="text-5xl font-bold text-yellow-400 mb-4">🏆 ¡JUEGO COMPLETADO!</h2>
+            <p class="text-xl mb-4 text-green-400">¡Has completado todos los niveles!</p>
+            <div class="bg-gray-700 p-6 rounded-lg mb-6">
+                <h3 class="text-2xl font-bold mb-4 text-cyan-400">📊 Resumen de Tiempos</h3>
+                <div class="space-y-2 text-lg">
+                    <p>🟢 Nivel 1 (Fácil): <span id="final-time1" class="text-green-400 font-bold">0.0s</span></p>
+                    <p>🟡 Nivel 2 (Medio): <span id="final-time2" class="text-yellow-400 font-bold">0.0s</span></p>
+                    <p>🔴 Nivel 3 (Difícil): <span id="final-time3" class="text-red-400 font-bold">0.0s</span></p>
+                    <hr class="my-3 border-gray-600">
+                    <p class="text-2xl">⏱️ Tiempo Total: <span id="final-total" class="text-cyan-400 font-bold">0.0s</span></p>
+                </div>
+            </div>
+            <button id="restart-btn" class="bg-purple-600 hover:bg-purple-500 px-6 py-3 rounded-md text-lg w-full">
+                🔄 Jugar de Nuevo
+            </button>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="plataformas.js"></script>
+</body>
+</html>

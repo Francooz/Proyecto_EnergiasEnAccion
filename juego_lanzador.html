@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energía Balística</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            background-color: #111827;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        
+        canvas {
+            background: linear-gradient(to bottom, #374151, #4b5563);
+            border-radius: 8px;
+            display: block;
+            border: 4px solid #4b5563;
+            cursor: crosshair;
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+        }
+        
+        .modal-content {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .stat-card {
+            background-color: #374151;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stat-card h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        
+        .stat-formula {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
+        
+        .stat-detail {
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <!-- Header -->
+    <div class="bg-gray-900 px-6 py-3 border-b-2 border-gray-700">
+        <h1 class="text-2xl font-bold text-purple-400 text-center">🎯 Energía Balística</h1>
+        <p class="text-gray-400 text-xs text-center mt-1">Arrastra la esfera hacia atrás y suelta para lanzar | Derriba la caja verde</p>
+    </div>
+
+    <!-- Controls Bar -->
+    <div class="bg-gray-800 px-6 py-2 flex justify-between items-center border-b border-gray-700">
+        <div class="flex gap-2">
+            <button id="level1-btn" class="bg-green-600 hover:bg-green-500 px-3 py-1.5 rounded text-sm transition">🟢 Fácil</button>
+            <button id="level2-btn" class="bg-yellow-600 hover:bg-yellow-500 px-3 py-1.5 rounded text-sm transition">🟡 Medio</button>
+            <button id="level3-btn" class="bg-red-600 hover:bg-red-500 px-3 py-1.5 rounded text-sm transition">🔴 Difícil</button>
+            <button id="reset-btn" class="bg-purple-600 hover:bg-purple-500 px-3 py-1.5 rounded text-sm transition ml-2">🔄 Reiniciar</button>
+        </div>
+        <div class="flex gap-6 text-sm">
+            <span>Nivel: <span id="stats-level" class="text-cyan-400 font-bold">1</span>/3</span>
+            <span>🎯 Intentos: <span id="stats-attempts" class="text-yellow-400 font-bold">3</span>/3</span>
+            <span>⏱️ <span id="stats-time" class="text-yellow-400 font-bold">0.0</span>s</span>
+        </div>
+    </div>
+
+    <!-- Main Game Area -->
+    <div class="flex" style="height: calc(100vh - 110px);">
+        <!-- Canvas Area -->
+        <div class="flex-1 p-4 flex items-center justify-center">
+            <div id="canvas-container"></div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div class="w-64 bg-gray-800 p-4 overflow-y-auto border-l border-gray-700">
+            <h2 class="text-xl font-bold text-center text-cyan-400 mb-3">📊 Panel de Física</h2>
+            
+            <!-- Energía Potencial -->
+            <div class="stat-card">
+                <h3 class="text-blue-400">⚡ Energía Potencial (Ep)</h3>
+                <p class="stat-value text-blue-300">
+                    <span id="stats-potential">0.00</span> J
+                </p>
+                <p class="stat-formula">Ep = ½kx²</p>
+                <p class="stat-detail">k = <span id="spring-k">50</span> N/m | x = <span id="stretch-dist">0.00</span> m</p>
+            </div>
+            
+            <!-- Energía Cinética -->
+            <div class="stat-card">
+                <h3 class="text-yellow-400">🚀 Energía Cinética (Ec)</h3>
+                <p class="stat-value text-yellow-300">
+                    <span id="stats-kinetic">0.00</span> J
+                </p>
+                <p class="stat-formula">Ec = ½mv²</p>
+                <p class="stat-detail">m = 0.5 kg | v = <span id="velocity">0.0</span> m/s</p>
+            </div>
+
+            <!-- Trabajo -->
+            <div class="stat-card">
+                <h3 class="text-red-400">💥 Trabajo (W)</h3>
+                <p class="stat-value text-red-300">
+                    <span id="stats-work">0.00</span> J
+                </p>
+                <p class="stat-formula">W = F·d ≈ ΔEc</p>
+                <p class="stat-detail">Eficiencia: <span id="efficiency">0%</span></p>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stat-card">
+                <h3 class="text-purple-400">🏆 Estadísticas</h3>
+                <p class="text-xs text-gray-300">Lanzamientos: <span id="launch-count" class="text-yellow-400 font-bold">0</span></p>
+                <p class="text-xs text-gray-300 mt-2">🎯 Tiempos:</p>
+                <p class="stat-detail">N1: <span id="time-level1" class="text-green-400">--</span></p>
+                <p class="stat-detail">N2: <span id="time-level2" class="text-yellow-400">--</span></p>
+                <p class="stat-detail">N3: <span id="time-level3" class="text-red-400">--</span></p>
+                <p class="text-xs text-gray-300 font-bold mt-1">Total: <span id="time-total" class="text-cyan-400">--</span></p>
+            </div>
+
+            <!-- Back Button -->
+            <div class="mt-4 text-center border-t border-gray-700 pt-3">
+                <a href="index.html" class="text-cyan-400 hover:text-cyan-300 text-sm">&larr; Volver al Menú</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Victoria -->
+    <div id="modal-win" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-8 rounded-lg text-center shadow-xl modal-content max-w-md">
+            <h2 class="text-4xl font-bold text-green-400 mb-4">🎯 ¡OBJETIVO DERRIBADO!</h2>
+            <div class="bg-gray-700 p-4 rounded-lg mb-4">
+                <p class="text-xl mb-2">⏱️ Tiempo: <span id="modal-time" class="text-yellow-400 font-bold">0.0s</span></p>
+                <p class="text-lg">💥 Trabajo: <span id="modal-work" class="text-red-400">0 J</span></p>
+                <p class="text-lg">🎯 Intentos: <span id="modal-launches" class="text-purple-400">0/3</span></p>
+                <p class="text-lg">⚡ Eficiencia: <span id="modal-efficiency" class="text-green-400">0%</span></p>
+            </div>
+            <button id="next-level-btn" class="bg-green-600 hover:bg-green-500 px-6 py-3 rounded-md text-lg w-full transition">
+                Siguiente Nivel →
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Game Over -->
+    <div id="modal-gameover" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-8 rounded-lg text-center shadow-xl modal-content max-w-md">
+            <h2 class="text-4xl font-bold text-red-400 mb-4">💔 ¡SIN INTENTOS!</h2>
+            <p class="text-xl mb-4 text-gray-300">Has usado todos tus intentos</p>
+            <div class="bg-gray-700 p-4 rounded-lg mb-4">
+                <p class="text-lg">🎯 Lanzamientos: <span class="text-yellow-400">3/3</span></p>
+                <p class="text-lg">⏱️ Tiempo: <span id="gameover-time" class="text-yellow-400">0.0s</span></p>
+            </div>
+            <button id="retry-level-btn" class="bg-red-600 hover:bg-red-500 px-6 py-3 rounded-md text-lg w-full transition">
+                🔄 Reintentar Nivel
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Final -->
+    <div id="modal-final" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-8 rounded-lg text-center shadow-xl modal-content max-w-lg">
+            <h2 class="text-5xl font-bold text-yellow-400 mb-4">🏆 ¡COMPLETADO!</h2>
+            <p class="text-xl mb-4 text-green-400">¡Has derribado todos los objetivos!</p>
+            <div class="bg-gray-700 p-6 rounded-lg mb-6">
+                <h3 class="text-2xl font-bold mb-4 text-cyan-400">📊 Resumen</h3>
+                <div class="space-y-2 text-lg">
+                    <p>🟢 Nivel 1: <span id="final-time1" class="text-green-400 font-bold">0.0s</span></p>
+                    <p>🟡 Nivel 2: <span id="final-time2" class="text-yellow-400 font-bold">0.0s</span></p>
+                    <p>🔴 Nivel 3: <span id="final-time3" class="text-red-400 font-bold">0.0s</span></p>
+                    <hr class="my-3 border-gray-600">
+                    <p class="text-2xl">⏱️ Total: <span id="final-total" class="text-cyan-400 font-bold">0.0s</span></p>
+                </div>
+            </div>
+            <button id="restart-btn" class="bg-purple-600 hover:bg-purple-500 px-6 py-3 rounded-md text-lg w-full transition">
+                🔄 Jugar de Nuevo
+            </button>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="proyectiles.js"></script>
+</body>
+</html>
